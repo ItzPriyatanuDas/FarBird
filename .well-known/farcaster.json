@@ -1,0 +1,17 @@
+{
+  "frame": {
+    "version": "1",
+    "name": "FarBird",
+    "homeUrl": "https://farbird.vercel.app",
+    "iconUrl": "https://farbird.vercel.app/icon.png",
+    "splashImageUrl": "https://farbird.vercel.app/splash.png",
+    "splashBackgroundColor": "#667eea",
+    "subtitle": "Flap your wings and fly through the pipes!",
+    "description": "An HTML5 Flappy Bird-style game running inside Farcaster Mini Apps.",
+    "primaryCategory": "games",
+    "tags": ["game", "html5", "flappybird", "farcaster"],
+    "ogTitle": "FarBird",
+    "ogDescription": "Play FarBird — the first flying Farcaster Mini App game!",
+    "ogImageUrl": "https://farbird.vercel.app/splash.png"
+  }
+}
