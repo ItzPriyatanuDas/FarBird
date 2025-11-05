@@ -11,7 +11,7 @@
     "iconUrl": "https://farbird.vercel.app/icon.png",
     "splashImageUrl": "https://farbird.vercel.app/splash.png",
     "splashBackgroundColor": "#667eea",
-    "subtitle": "Flap your wings and fly through the pipes!",
+    "subtitle": "A flying game for Farcaster",
     "description": "An HTML5 Flappy Bird-style game running inside Farcaster Mini Apps.",
     "primaryCategory": "games",
     "tags": ["game", "html5", "flappybird", "farcaster"],
