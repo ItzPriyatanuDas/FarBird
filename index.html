@@ -1,579 +1,603 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FarBird - Farcaster</title>
-  <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.19/dist/sdk.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FarBird - Farcaster Mini App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.19/dist/sdk.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Arial', sans-serif;
-      user-select: none; 
-      touch-action: manipulation;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 10px;
-      overflow: hidden;
-    }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            user-select: none;
+            touch-action: manipulation;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 10px;
+            overflow: hidden;
+        }
 
-    .header {
-      text-align: center;
-      margin-bottom: 10px;
-      color: white;
-    }
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+            color: white;
+        }
 
-    .header h1 {
-      font-size: 2.5em;
-      text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-      margin-bottom: 5px;
-    }
+        .header h1 {
+            font-size: 2.5em;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+        }
 
-    .header p {
-      font-size: 1em;
-      opacity: 0.9;
-    }
+        .header p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
 
-    .user-info {
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(10px);
-      padding: 8px 15px;
-      border-radius: 20px;
-      color: white;
-      font-size: 0.9em;
-      margin-bottom: 10px;
-    }
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
 
-    .game-container {
-      position: relative;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      border-radius: 10px;
-      overflow: hidden;
-    }
+        .game-container {
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
 
-    canvas {
-      display: block;
-      background: #87CEEB;
-      touch-action: manipulation;
-    }
+        canvas {
+            display: block;
+            background: #87CEEB;
+            touch-action: manipulation;
+        }
 
-    .stats-overlay {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 0.9em;
-      text-align: right;
-    }
+        .stats-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            text-align: right;
+        }
 
-    .game-over-modal {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.9);
-      color: white;
-      padding: 30px;
-      border-radius: 15px;
-      text-align: center;
-      display: none;
-      min-width: 280px;
-    }
+        .game-over-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            min-width: 280px;
+        }
 
-    .game-over-modal.show {
-      display: block;
-    }
+        .game-over-modal.show {
+            display: block;
+        }
 
-    .game-over-modal h2 {
-      font-size: 2em;
-      margin-bottom: 15px;
-      color: #ff6b6b;
-    }
+        .game-over-modal h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #ff6b6b;
+        }
 
-    .game-over-modal .score-display {
-      font-size: 1.5em;
-      margin: 10px 0;
-    }
+        .game-over-modal .score-display {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
 
-    .game-over-modal .best-score {
-      color: #ffd700;
-      font-size: 1.2em;
-      margin: 5px 0;
-    }
+        .game-over-modal .best-score {
+            color: #ffd700;
+            font-size: 1.2em;
+            margin: 5px 0;
+        }
 
-    .btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 25px;
-      font-size: 1em;
-      cursor: pointer;
-      margin: 5px;
-      transition: transform 0.2s;
-    }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
 
-    .btn:active {
-      transform: scale(0.95);
-    }
+        .btn:active {
+            transform: scale(0.95);
+        }
 
-    .btn-secondary {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
 
-    .leaderboard {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.95);
-      color: white;
-      padding: 20px;
-      overflow-y: auto;
-      display: none;
-    }
+        .leaderboard {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
 
-    .leaderboard.show {
-      display: block;
-    }
+        .leaderboard.show {
+            display: block;
+        }
 
-    .leaderboard h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #ffd700;
-    }
+        .leaderboard h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
 
-    .leaderboard-entry {
-      background: rgba(255,255,255,0.1);
-      padding: 10px;
-      margin: 5px 0;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        .leaderboard-entry {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .leaderboard-entry.current-user {
-      background: rgba(102, 126, 234, 0.3);
-      border: 2px solid #667eea;
-    }
+        .leaderboard-entry.current-user {
+            background: rgba(102, 126, 234, 0.3);
+            border: 2px solid #667eea;
+        }
 
-    .rank {
-      font-weight: bold;
-      font-size: 1.2em;
-      min-width: 40px;
-    }
+        .rank {
+            font-weight: bold;
+            font-size: 1.2em;
+            min-width: 40px;
+        }
 
-    .loading {
-      text-align: center;
-      color: white;
-      font-size: 1.2em;
-      padding: 20px;
-    }
-  </style>
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div class="header">
-    <h1>🐦 FarBird</h1>
-    <p>Touch the Screen to Farrrrr</p>
-  </div>
-
-  <div class="user-info" id="userInfo">
-    <span id="userName">Connecting to Farcaster...</span>
-  </div>
-
-  <div class="game-container">
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-    
-    <div class="stats-overlay">
-      <div>Best: <span id="bestScore">0</span></div>
+    <div class="header">
+        <h1>🐦 FarBird</h1>
+        <p>Touch the Screen to Farrrrr</p>
     </div>
 
-    <div class="game-over-modal" id="gameOverModal">
-      <h2>Game Over!</h2>
-      <div class="score-display">Score: <span id="finalScore">0</span></div>
-      <div class="best-score" id="newBest" style="display:none;">🎉 New Best!</div>
-      <div class="best-score">Your Best: <span id="personalBest">0</span></div>
-      <button class="btn" onclick="restartGame()">Play Again</button>
-      <button class="btn btn-secondary" onclick="shareScore()">Share Score</button>
-      <button class="btn btn-secondary" onclick="showLeaderboard()">Leaderboard</button>
+    <div class="user-info" id="userInfo">
+        <span id="userName">Connecting to Farcaster...</span>
     </div>
 
-    <div class="leaderboard" id="leaderboard">
-      <h2>🏆 Global Leaderboard</h2>
-      <div id="leaderboardContent" class="loading">Loading...</div>
-      <button class="btn" onclick="hideLeaderboard()" style="margin-top: 20px; width: 100%;">Close</button>
-    </div>
-  </div>
-
-  <script>
-    const WIDTH = 400, HEIGHT = 600;
-    const GRAVITY = 0.25, LIFT = -5;
-    const PIPE_WIDTH = 60, PIPE_GAP = 150;
-    const BASE_PIPE_SPEED = 2.5; 
-    const EASY_SCORE_THRESHOLD = 15;
-    const EASY_SPEED_FACTOR = 0.5;
-    const PIPE_SPAWN_FREQUENCY = 150; 
-
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    let farcasterUser = null;
-    let bird, pipes, frame, gameOver, score, personalBest = 0;
-
-    // Initialize Farcaster SDK
-    async function initFarcaster() {
-      try {
-        await sdk.actions.ready();
-        const context = await sdk.context;
-        farcasterUser = context.user;
+    <div class="game-container">
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
         
-        document.getElementById('userName').textContent = 
-          `@${farcasterUser.username} (FID: ${farcasterUser.fid})`;
+        <div class="stats-overlay">
+            <div>Best: <span id="bestScore">0</span></div>
+        </div>
 
-        // Load personal best
-        await loadPersonalBest();
-      } catch (error) {
-        console.error('Farcaster init error:', error);
-        document.getElementById('userName').textContent = 'Playing as Guest';
-      }
-    }
+        <div class="game-over-modal" id="gameOverModal">
+            <h2>Game Over!</h2>
+            <div class="score-display">Score: <span id="finalScore">0</span></div>
+            <div class="best-score" id="newBest" style="display:none;">🎉 New Best!</div>
+            <div class="best-score">Your Best: <span id="personalBest">0</span></div>
+            <button class="btn" onclick="restartGame()">Play Again</button>
+            <button class="btn btn-secondary" onclick="shareScore()">Share Score</button>
+            <button class="btn btn-secondary" onclick="showLeaderboard()">Leaderboard</button>
+        </div>
 
-    // Load personal best score
-    async function loadPersonalBest() {
-      if (!farcasterUser) return;
-      
-      try {
-        const result = await window.storage.get(`farbird_best_${farcasterUser.fid}`);
-        if (result && result.value) {
-          personalBest = parseInt(result.value);
-          document.getElementById('bestScore').textContent = personalBest;
-        }
-      } catch (error) {
-        console.log('No previous best score');
-      }
-    }
+        <div class="leaderboard" id="leaderboard">
+            <h2>🏆 Global Leaderboard</h2>
+            <div id="leaderboardContent" class="loading">Loading...</div>
+            <button class="btn" onclick="hideLeaderboard()" style="margin-top: 20px; width: 100%;">Close</button>
+        </div>
+    </div>
 
-    // Save personal best score
-    async function savePersonalBest(score) {
-      if (!farcasterUser || score <= personalBest) return;
-      
-      personalBest = score;
-      document.getElementById('bestScore').textContent = personalBest;
-      
-      try {
-        await window.storage.set(`farbird_best_${farcasterUser.fid}`, score.toString());
-      } catch (error) {
-        console.error('Failed to save best score:', error);
-      }
-    }
+    <script>
+        const WIDTH = 400, HEIGHT = 600;
+        const GRAVITY = 0.25, LIFT = -5;
+        const PIPE_WIDTH = 60, PIPE_GAP = 150;
+        const BASE_PIPE_SPEED = 2.5; 
+        const EASY_SCORE_THRESHOLD = 15;
+        const EASY_SPEED_FACTOR = 0.5;
+        const PIPE_SPAWN_FREQUENCY = 150; 
 
-    // Save to global leaderboard
-    async function saveToLeaderboard(score) {
-      if (!farcasterUser || score === 0) return;
-      
-      try {
-        const leaderboardKey = `farbird_leaderboard_${farcasterUser.fid}`;
-        const data = JSON.stringify({
-          username: farcasterUser.username,
-          fid: farcasterUser.fid,
-          score: score,
-          timestamp: Date.now()
-        });
-        await window.storage.set(leaderboardKey, data, true);
-      } catch (error) {
-        console.error('Failed to save to leaderboard:', error);
-      }
-    }
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-    // Load and display leaderboard
-    async function showLeaderboard() {
-      document.getElementById('leaderboard').classList.add('show');
-      document.getElementById('leaderboardContent').innerHTML = '<div class="loading">Loading leaderboard...</div>';
-      
-      try {
-        const result = await window.storage.list('farbird_leaderboard_', true);
-        if (!result || !result.keys || result.keys.length === 0) {
-          document.getElementById('leaderboardContent').innerHTML = '<div style="text-align:center; padding:20px;">No scores yet. Be the first!</div>';
-          return;
-        }
+        let farcasterUser = null;
+        let bird, pipes, frame, gameOver, score, personalBest = 0;
 
-        const scores = [];
-        for (const key of result.keys) {
-          try {
-            const data = await window.storage.get(key, true);
-            if (data && data.value) {
-              scores.push(JSON.parse(data.value));
+        // --- Farcaster Mini App Logic ---
+
+        // Initialize Farcaster SDK
+        async function initFarcaster() {
+            try {
+                // *** IMPLEMENTATION 2: Signal to Host we are ready, then get context ***
+                await sdk.actions.ready();
+                const context = await sdk.context;
+                
+                // *** IMPLEMENTATION 3: Use Farcaster User Context ***
+                farcasterUser = context.user;
+                
+                document.getElementById('userName').textContent = 
+                    `@${farcasterUser.username} (FID: ${farcasterUser.fid})`;
+
+                // Load personal best
+                await loadPersonalBest();
+            } catch (error) {
+                console.error('Farcaster init error:', error);
+                document.getElementById('userName').textContent = 'Playing as Guest';
+                // If Farcaster user fails, ensure game still starts
+                resetGame(); 
             }
-          } catch (e) {
-            console.error('Error loading score:', e);
-          }
         }
 
-        scores.sort((a, b) => b.score - a.score);
-        const top50 = scores.slice(0, 50);
+        // Load personal best score
+        async function loadPersonalBest() {
+            if (!farcasterUser || typeof window.storage === 'undefined') return;
+            
+            try {
+                // *** IMPLEMENTATION 4: Use window.storage.get for local user data ***
+                const result = await window.storage.get(`farbird_best_${farcasterUser.fid}`);
+                if (result && result.value) {
+                    personalBest = parseInt(result.value);
+                    document.getElementById('bestScore').textContent = personalBest;
+                }
+            } catch (error) {
+                console.log('No previous best score or storage error:', error);
+            }
+        }
 
-        let html = '';
-        top50.forEach((entry, index) => {
-          const isCurrentUser = farcasterUser && entry.fid === farcasterUser.fid;
-          const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
-          html += `
-            <div class="leaderboard-entry ${isCurrentUser ? 'current-user' : ''}">
-              <div>
-                <span class="rank">${rankEmoji} #${index + 1}</span>
-                <span>@${entry.username}</span>
-              </div>
-              <div style="font-weight:bold; font-size:1.2em;">${entry.score}</div>
-            </div>
-          `;
+        // Save personal best score
+        async function savePersonalBest(score) {
+            if (!farcasterUser || score <= personalBest || typeof window.storage === 'undefined') return;
+            
+            personalBest = score;
+            document.getElementById('bestScore').textContent = personalBest;
+            
+            try {
+                // *** IMPLEMENTATION 5: Use window.storage.set for local user data ***
+                await window.storage.set(`farbird_best_${farcasterUser.fid}`, score.toString());
+            } catch (error) {
+                console.error('Failed to save best score:', error);
+            }
+        }
+
+        // Save to global leaderboard
+        async function saveToLeaderboard(score) {
+            // Use window.storage's *global* namespace (isGlobal: true)
+            if (!farcasterUser || score === 0 || typeof window.storage === 'undefined') return;
+            
+            try {
+                const leaderboardKey = `farbird_leaderboard_${farcasterUser.fid}`;
+                const data = JSON.stringify({
+                    username: farcasterUser.username,
+                    fid: farcasterUser.fid,
+                    score: score,
+                    timestamp: Date.now()
+                });
+                // *** IMPLEMENTATION 6: Use window.storage.set with isGlobal=true ***
+                await window.storage.set(leaderboardKey, data, true);
+            } catch (error) {
+                console.error('Failed to save to leaderboard:', error);
+            }
+        }
+
+        // Load and display leaderboard
+        async function showLeaderboard() {
+            if (typeof window.storage === 'undefined') {
+                document.getElementById('leaderboardContent').innerHTML = '<div style="text-align:center; padding:20px;">Storage not available.</div>';
+                document.getElementById('leaderboard').classList.add('show');
+                return;
+            }
+
+            document.getElementById('leaderboard').classList.add('show');
+            document.getElementById('leaderboardContent').innerHTML = '<div class="loading">Loading leaderboard...</div>';
+            
+            try {
+                // *** IMPLEMENTATION 7: Use window.storage.list with isGlobal=true ***
+                const result = await window.storage.list('farbird_leaderboard_', true);
+                if (!result || !result.keys || result.keys.length === 0) {
+                    document.getElementById('leaderboardContent').innerHTML = '<div style="text-align:center; padding:20px;">No scores yet. Be the first!</div>';
+                    return;
+                }
+
+                const scores = [];
+                for (const key of result.keys) {
+                    try {
+                        // *** IMPLEMENTATION 8: Use window.storage.get with isGlobal=true ***
+                        const data = await window.storage.get(key, true);
+                        if (data && data.value) {
+                            scores.push(JSON.parse(data.value));
+                        }
+                    } catch (e) {
+                        console.error('Error loading score:', e);
+                    }
+                }
+
+                scores.sort((a, b) => b.score - a.score);
+                const top50 = scores.slice(0, 50);
+
+                let html = '';
+                top50.forEach((entry, index) => {
+                    const isCurrentUser = farcasterUser && entry.fid === farcasterUser.fid;
+                    const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                    html += `
+                        <div class="leaderboard-entry ${isCurrentUser ? 'current-user' : ''}">
+                            <div>
+                                <span class="rank">${rankEmoji} #${index + 1}</span>
+                                <span>@${entry.username}</span>
+                            </div>
+                            <div style="font-weight:bold; font-size:1.2em;">${entry.score}</div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('leaderboardContent').innerHTML = html;
+            } catch (error) {
+                console.error('Failed to load leaderboard:', error);
+                document.getElementById('leaderboardContent').innerHTML = '<div style="text-align:center; padding:20px;">Failed to load leaderboard</div>';
+            }
+        }
+
+        function hideLeaderboard() {
+            document.getElementById('leaderboard').classList.remove('show');
+        }
+
+        // Share score to Farcaster
+        async function shareScore() {
+            if (!farcasterUser) {
+                alert('Connect to Farcaster to share!');
+                return;
+            }
+
+            const text = `Just scored ${score} points in FarBird! 🐦 My best is ${personalBest}!\n\nCan you beat my score? Play FarBird here: [LINK TO YOUR MINI APP]\n#FarBird #FarcasterMiniApp`;
+            
+            try {
+                // *** IMPLEMENTATION 9: Use sdk.actions.openUrl for sharing/composing ***
+                // NOTE: Replace [LINK TO YOUR MINI APP] with your actual hosted URL
+                await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`);
+            } catch (error) {
+                console.error('Share failed:', error);
+            }
+        }
+        
+        // --- Game Logic (Unchanged) ---
+
+        function resetGame() {
+            bird = { x: 70, y: HEIGHT / 2, w: 40, h: 32, vel: 0 };
+            pipes = [];
+            frame = 0;
+            gameOver = false;
+            score = 0;
+            document.getElementById('gameOverModal').classList.remove('show');
+            loop();
+        }
+
+        function restartGame() {
+            resetGame();
+        }
+
+        function flap() {
+            if (!gameOver) {
+                bird.vel = LIFT;
+            }
+        }
+
+        canvas.addEventListener("pointerdown", () => {
+            if (gameOver) {
+                // Modal handles restart
+            } else {
+                flap();
+            }
         });
 
-        document.getElementById('leaderboardContent').innerHTML = html;
-      } catch (error) {
-        console.error('Failed to load leaderboard:', error);
-        document.getElementById('leaderboardContent').innerHTML = '<div style="text-align:center; padding:20px;">Failed to load leaderboard</div>';
-      }
-    }
+        document.addEventListener("keydown", e => {
+            if (e.code === "Space") flap();
+            if (e.code === "KeyR") resetGame();
+        });
 
-    function hideLeaderboard() {
-      document.getElementById('leaderboard').classList.remove('show');
-    }
-
-    // Share score to Farcaster
-    async function shareScore() {
-      if (!farcasterUser) {
-        alert('Connect to Farcaster to share!');
-        return;
-      }
-
-      const text = `Just scored ${score} points in FarBird! 🐦\n\nCan you beat my score?`;
-      
-      try {
-        await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`);
-      } catch (error) {
-        console.error('Share failed:', error);
-      }
-    }
-
-    function resetGame() {
-      bird = { x: 70, y: HEIGHT / 2, w: 40, h: 32, vel: 0 };
-      pipes = [];
-      frame = 0;
-      gameOver = false;
-      score = 0;
-      document.getElementById('gameOverModal').classList.remove('show');
-      loop();
-    }
-
-    function restartGame() {
-      resetGame();
-    }
-
-    function flap() {
-      if (!gameOver) {
-        bird.vel = LIFT;
-      }
-    }
-
-    canvas.addEventListener("pointerdown", () => {
-      if (gameOver) {
-        // Modal handles restart
-      } else {
-        flap();
-      }
-    });
-
-    document.addEventListener("keydown", e => {
-      if (e.code === "Space") flap();
-      if (e.code === "KeyR") resetGame();
-    });
-
-    function addPipe() {
-      const gapY = Math.floor(Math.random() * (HEIGHT - PIPE_GAP - 120)) + 60;
-      pipes.push({ x: WIDTH, y: gapY, passed: false }); 
-    }
-
-    function checkCollision(pipe) {
-      if (
-        bird.x < pipe.x + PIPE_WIDTH &&
-        bird.x + bird.w > pipe.x &&
-        (bird.y < pipe.y || bird.y + bird.h > pipe.y + PIPE_GAP)
-      ) return true;
-
-      if (bird.y + bird.h >= HEIGHT - 60) return true;
-      return false;
-    }
-
-    function getPipeSpeed() {
-      if (score < EASY_SCORE_THRESHOLD) {
-        return BASE_PIPE_SPEED * EASY_SPEED_FACTOR;
-      }
-      return BASE_PIPE_SPEED + 0.5; 
-    }
-
-    function update() {
-      if (gameOver) return;
-
-      bird.vel += GRAVITY;
-      bird.y += bird.vel;
-      if (bird.y < 0) bird.y = 0;
-
-      const currentPipeSpeed = getPipeSpeed();
-
-      for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].x -= currentPipeSpeed;
-
-        if (!pipes[i].passed && pipes[i].x + PIPE_WIDTH < bird.x) {
-          score++;
-          pipes[i].passed = true;
+        function addPipe() {
+            const gapY = Math.floor(Math.random() * (HEIGHT - PIPE_GAP - 120)) + 60;
+            pipes.push({ x: WIDTH, y: gapY, passed: false }); 
         }
 
-        if (pipes[i].x + PIPE_WIDTH < 0) pipes.splice(i, 1);
-        
-        if (checkCollision(pipes[i])) {
-          gameOver = true;
-          handleGameOver();
+        function checkCollision(pipe) {
+            if (
+                bird.x < pipe.x + PIPE_WIDTH &&
+                bird.x + bird.w > pipe.x &&
+                (bird.y < pipe.y || bird.y + bird.h > pipe.y + PIPE_GAP)
+            ) return true;
+
+            if (bird.y + bird.h >= HEIGHT - 60) return true;
+            return false;
         }
-      }
 
-      if (frame % PIPE_SPAWN_FREQUENCY === 0) addPipe();
-      frame++;
-    }
+        function getPipeSpeed() {
+            if (score < EASY_SCORE_THRESHOLD) {
+                return BASE_PIPE_SPEED * EASY_SPEED_FACTOR;
+            }
+            return BASE_PIPE_SPEED + 0.5; 
+        }
 
-    async function handleGameOver() {
-      document.getElementById('finalScore').textContent = score;
-      document.getElementById('personalBest').textContent = Math.max(score, personalBest);
-      
-      if (score > personalBest) {
-        document.getElementById('newBest').style.display = 'block';
-        await savePersonalBest(score);
-      } else {
-        document.getElementById('newBest').style.display = 'none';
-      }
+        function update() {
+            if (gameOver) return;
 
-      await saveToLeaderboard(score);
-      
-      document.getElementById('gameOverModal').classList.add('show');
-    }
+            bird.vel += GRAVITY;
+            bird.y += bird.vel;
+            if (bird.y < 0) bird.y = 0;
 
-    // Draw animated bird with flapping wings
-    function drawBird(x, y, w, h, frame) {
-      const wingFlap = Math.sin(frame * 0.2) * 5; // Wing animation
-      
-      // Bird body (oval)
-      ctx.fillStyle = "#FFD700";
-      ctx.beginPath();
-      ctx.ellipse(x + w/2, y + h/2, w/2, h/2, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Bird head (circle)
-      ctx.fillStyle = "#FFA500";
-      ctx.beginPath();
-      ctx.arc(x + w * 0.7, y + h * 0.3, w * 0.35, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Eye white
-      ctx.fillStyle = "white";
-      ctx.beginPath();
-      ctx.arc(x + w * 0.75, y + h * 0.25, w * 0.15, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Eye pupil
-      ctx.fillStyle = "black";
-      ctx.beginPath();
-      ctx.arc(x + w * 0.8, y + h * 0.25, w * 0.08, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Beak
-      ctx.fillStyle = "#FF6347";
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.9, y + h * 0.35);
-      ctx.lineTo(x + w * 1.1, y + h * 0.3);
-      ctx.lineTo(x + w * 0.9, y + h * 0.25);
-      ctx.closePath();
-      ctx.fill();
-      
-      // Left wing
-      ctx.fillStyle = "#FFA500";
-      ctx.beginPath();
-      ctx.ellipse(x + w * 0.3, y + h * 0.5 + wingFlap, w * 0.3, h * 0.4, -0.3, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Right wing (only visible when flapping up)
-      if (wingFlap < 0) {
-        ctx.fillStyle = "#FF8C00";
-        ctx.beginPath();
-        ctx.ellipse(x + w * 0.6, y + h * 0.5 - wingFlap, w * 0.25, h * 0.35, 0.3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      
-      // Tail feathers
-      ctx.fillStyle = "#FF8C00";
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.1, y + h * 0.5);
-      ctx.lineTo(x - w * 0.1, y + h * 0.3);
-      ctx.lineTo(x, y + h * 0.6);
-      ctx.closePath();
-      ctx.fill();
-    }
+            const currentPipeSpeed = getPipeSpeed();
 
-    function draw() {
-      ctx.fillStyle = "#87CEEB";
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                pipes[i].x -= currentPipeSpeed;
 
-      ctx.fillStyle = "#228B22";
-      ctx.fillRect(0, HEIGHT - 60, WIDTH, 60);
+                if (!pipes[i].passed && pipes[i].x + PIPE_WIDTH < bird.x) {
+                    score++;
+                    pipes[i].passed = true;
+                }
 
-      // Draw animated bird
-      drawBird(bird.x, bird.y, bird.w, bird.h, frame);
+                if (pipes[i].x + PIPE_WIDTH < 0) pipes.splice(i, 1);
+                
+                if (checkCollision(pipes[i])) {
+                    gameOver = true;
+                    handleGameOver();
+                }
+            }
 
-      // Draw pipes
-      ctx.fillStyle = "#2ECC40";
-      pipes.forEach(pipe => {
-        ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.y);
-        ctx.fillRect(pipe.x, pipe.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - pipe.y - PIPE_GAP);
-        
-        // Pipe borders
-        ctx.strokeStyle = "#228B22";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(pipe.x, 0, PIPE_WIDTH, pipe.y);
-        ctx.strokeRect(pipe.x, pipe.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - pipe.y - PIPE_GAP);
-      });
+            if (frame % PIPE_SPAWN_FREQUENCY === 0) addPipe();
+            frame++;
+        }
 
-      // Draw Score
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 3;
-      ctx.font = "bold 40px Arial";
-      const scoreText = score.toString();
-      const textWidth = ctx.measureText(scoreText).width;
-      ctx.strokeText(scoreText, WIDTH / 2 - textWidth / 2, 50); 
-      ctx.fillText(scoreText, WIDTH / 2 - textWidth / 2, 50); 
-    }
+        async function handleGameOver() {
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('personalBest').textContent = Math.max(score, personalBest);
+            
+            if (score > personalBest) {
+                document.getElementById('newBest').style.display = 'block';
+                await savePersonalBest(score);
+            } else {
+                document.getElementById('newBest').style.display = 'none';
+            }
 
-    function loop() {
-      update();
-      draw();
-      if (!gameOver) requestAnimationFrame(loop);
-    }
+            await saveToLeaderboard(score);
+            
+            document.getElementById('gameOverModal').classList.add('show');
+        }
 
-    // Initialize everything
-    initFarcaster().then(() => {
-      resetGame();
-    });
-  </script>
+        // Draw animated bird with flapping wings
+        function drawBird(x, y, w, h, frame) {
+            const wingFlap = Math.sin(frame * 0.2) * 5; // Wing animation
+            
+            // Bird body (oval)
+            ctx.fillStyle = "#FFD700";
+            ctx.beginPath();
+            ctx.ellipse(x + w/2, y + h/2, w/2, h/2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Bird head (circle)
+            ctx.fillStyle = "#FFA500";
+            ctx.beginPath();
+            ctx.arc(x + w * 0.7, y + h * 0.3, w * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eye white
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(x + w * 0.75, y + h * 0.25, w * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eye pupil
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.arc(x + w * 0.8, y + h * 0.25, w * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Beak
+            ctx.fillStyle = "#FF6347";
+            ctx.beginPath();
+            ctx.moveTo(x + w * 0.9, y + h * 0.35);
+            ctx.lineTo(x + w * 1.1, y + h * 0.3);
+            ctx.lineTo(x + w * 0.9, y + h * 0.25);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Left wing
+            ctx.fillStyle = "#FFA500";
+            ctx.beginPath();
+            ctx.ellipse(x + w * 0.3, y + h * 0.5 + wingFlap, w * 0.3, h * 0.4, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Right wing (only visible when flapping up)
+            if (wingFlap < 0) {
+                ctx.fillStyle = "#FF8C00";
+                ctx.beginPath();
+                ctx.ellipse(x + w * 0.6, y + h * 0.5 - wingFlap, w * 0.25, h * 0.35, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Tail feathers
+            ctx.fillStyle = "#FF8C00";
+            ctx.beginPath();
+            ctx.moveTo(x + w * 0.1, y + h * 0.5);
+            ctx.lineTo(x - w * 0.1, y + h * 0.3);
+            ctx.lineTo(x, y + h * 0.6);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function draw() {
+            ctx.fillStyle = "#87CEEB";
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+            ctx.fillStyle = "#228B22";
+            ctx.fillRect(0, HEIGHT - 60, WIDTH, 60);
+
+            // Draw animated bird
+            drawBird(bird.x, bird.y, bird.w, bird.h, frame);
+
+            // Draw pipes
+            ctx.fillStyle = "#2ECC40";
+            pipes.forEach(pipe => {
+                ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.y);
+                ctx.fillRect(pipe.x, pipe.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - pipe.y - PIPE_GAP);
+                
+                // Pipe borders
+                ctx.strokeStyle = "#228B22";
+                ctx.lineWidth = 3;
+                ctx.strokeRect(pipe.x, 0, PIPE_WIDTH, pipe.y);
+                ctx.strokeRect(pipe.x, pipe.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - pipe.y - PIPE_GAP);
+            });
+
+            // Draw Score
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 3;
+            ctx.font = "bold 40px Arial";
+            const scoreText = score.toString();
+            const textWidth = ctx.measureText(scoreText).width;
+            ctx.strokeText(scoreText, WIDTH / 2 - textWidth / 2, 50); 
+            ctx.fillText(scoreText, WIDTH / 2 - textWidth / 2, 50); 
+        }
+
+        function loop() {
+            update();
+            draw();
+            if (!gameOver) requestAnimationFrame(loop);
+        }
+
+        // Initialize everything
+        initFarcaster(); // Removed .then(() => resetGame()) and added resetGame() to catch block to ensure game starts
+        if (!farcasterUser) {
+            resetGame();
+        }
+    </script>
 </body>
 </html>
