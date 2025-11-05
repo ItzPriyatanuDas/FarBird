@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FarBird - Farcaster Mini App</title>
-  <!-- ✅ Add Farcaster Mini App SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk@latest/dist/index.umd.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       font-family: 'Arial', sans-serif;
@@ -22,16 +20,9 @@
       padding: 10px;
       overflow: hidden;
     }
-
     .header { text-align: center; margin-bottom: 10px; color: white; }
-    .header h1 {
-      font-size: 2.5em;
-      text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-      margin-bottom: 5px;
-    }
-
+    .header h1 { font-size: 2.5em; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); margin-bottom: 5px; }
     .header p { font-size: 1em; opacity: 0.9; }
-
     .user-info {
       background: rgba(255,255,255,0.2);
       backdrop-filter: blur(10px);
@@ -41,72 +32,29 @@
       font-size: 0.9em;
       margin-bottom: 10px;
     }
-
     .game-container {
       position: relative;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
       border-radius: 10px;
       overflow: hidden;
     }
-
-    canvas {
-      display: block;
-      background: #87CEEB;
-      touch-action: manipulation;
-    }
-
+    canvas { display: block; background: #87CEEB; touch-action: manipulation; }
     .stats-overlay {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 0.9em;
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(0,0,0,0.6); color: white;
+      padding: 10px; border-radius: 8px; font-size: 0.9em;
       text-align: right;
     }
-
     .game-over-modal {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.9);
-      color: white;
-      padding: 30px;
-      border-radius: 15px;
-      text-align: center;
-      display: none;
-      min-width: 280px;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.9); color: white; padding: 30px; border-radius: 15px;
+      text-align: center; display: none; min-width: 280px;
     }
-
     .game-over-modal.show { display: block; }
-    .game-over-modal h2 {
-      font-size: 2em;
-      margin-bottom: 15px;
-      color: #ff6b6b;
-    }
-    .game-over-modal .score-display {
-      font-size: 1.5em;
-      margin: 10px 0;
-    }
-    .game-over-modal .best-score {
-      color: #ffd700;
-      font-size: 1.2em;
-      margin: 5px 0;
-    }
-
     .btn {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 25px;
-      font-size: 1em;
-      cursor: pointer;
-      margin: 5px;
-      transition: transform 0.2s;
+      color: white; border: none; padding: 12px 25px; border-radius: 25px;
+      font-size: 1em; cursor: pointer; margin: 5px; transition: transform 0.2s;
     }
     .btn:active { transform: scale(0.95); }
     .btn-secondary {
@@ -155,18 +103,18 @@
 
     let bird, pipes, frame, gameOver, score, personalBest = 0;
     let farcasterUser = null;
-    let sdk = window.FarcasterMiniApp; // ✅ global SDK object
+    const sdk = window.FarcasterMiniApp;
 
-    // --- Farcaster Mini App Integration ---
-    async function initFarcaster() {
+    // ✅ Call ready() immediately on load
+    (async function init() {
       try {
-        await sdk.actions.ready();
+        await sdk.actions.ready(); // 👈 signal Warpcast we're ready
         const context = await sdk.context;
         farcasterUser = context.user;
         document.getElementById("userName").textContent =
           `@${farcasterUser.username} (FID: ${farcasterUser.fid})`;
 
-        // Load personal best
+        // Load best score from Farcaster storage
         const stored = await sdk.storage.get(`farbird_best_${farcasterUser.fid}`);
         if (stored?.value) {
           personalBest = parseInt(stored.value);
@@ -174,11 +122,11 @@
         }
         resetGame();
       } catch (err) {
-        console.warn("Farcaster init failed:", err);
+        console.warn("Farcaster not available:", err);
         document.getElementById("userName").textContent = "Playing as Guest";
         resetGame();
       }
-    }
+    })();
 
     async function savePersonalBest(score) {
       if (!farcasterUser) return;
@@ -194,11 +142,11 @@
         alert("Connect to Farcaster to share!");
         return;
       }
-      const text = `I just scored ${score} in 🐦 FarBird! My best: ${personalBest}.\nCan you beat me?`;
+      const text = `I just scored ${score} in 🐦 FarBird! My best: ${personalBest}. Can you beat me?`;
       await sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`);
     }
 
-    // --- Game Logic (Unchanged) ---
+    // --- Game Logic (unchanged) ---
     function resetGame() {
       bird = { x: 70, y: HEIGHT / 2, w: 40, h: 32, vel: 0 };
       pipes = [];
@@ -208,10 +156,8 @@
       document.getElementById('gameOverModal').classList.remove('show');
       loop();
     }
-
     function restartGame() { resetGame(); }
     function flap() { if (!gameOver) bird.vel = LIFT; }
-
     canvas.addEventListener("pointerdown", flap);
     document.addEventListener("keydown", e => {
       if (e.code === "Space") flap();
@@ -222,7 +168,6 @@
       const gapY = Math.floor(Math.random() * (HEIGHT - PIPE_GAP - 120)) + 60;
       pipes.push({ x: WIDTH, y: gapY, passed: false });
     }
-
     function checkCollision(pipe) {
       if (
         bird.x < pipe.x + PIPE_WIDTH &&
@@ -232,19 +177,16 @@
       if (bird.y + bird.h >= HEIGHT - 60) return true;
       return false;
     }
-
     function getPipeSpeed() {
       return score < EASY_SCORE_THRESHOLD
         ? BASE_PIPE_SPEED * EASY_SPEED_FACTOR
         : BASE_PIPE_SPEED + 0.5;
     }
-
     function update() {
       if (gameOver) return;
       bird.vel += GRAVITY;
       bird.y += bird.vel;
       if (bird.y < 0) bird.y = 0;
-
       const currentPipeSpeed = getPipeSpeed();
       for (let i = pipes.length - 1; i >= 0; i--) {
         pipes[i].x -= currentPipeSpeed;
@@ -261,7 +203,6 @@
       if (frame % PIPE_SPAWN_FREQUENCY === 0) addPipe();
       frame++;
     }
-
     async function handleGameOver() {
       document.getElementById('finalScore').textContent = score;
       if (score > personalBest) {
@@ -328,10 +269,6 @@
       pipes.forEach(pipe => {
         ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.y);
         ctx.fillRect(pipe.x, pipe.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - pipe.y - PIPE_GAP);
-        ctx.strokeStyle = "#228B22";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(pipe.x, 0, PIPE_WIDTH, pipe.y);
-        ctx.strokeRect(pipe.x, pipe.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - pipe.y - PIPE_GAP);
       });
       ctx.fillStyle = "white";
       ctx.strokeStyle = "black";
@@ -348,8 +285,6 @@
       draw();
       if (!gameOver) requestAnimationFrame(loop);
     }
-
-    initFarcaster();
   </script>
 </body>
 </html>
