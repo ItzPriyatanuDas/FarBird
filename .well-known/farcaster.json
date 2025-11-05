@@ -1,4 +1,9 @@
 {
+  "accountAssociation": {
+    "header": "eyJmaWQiOjI1MDQzNSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDNkYzQ0MGQxMDJlQWNBNTgwMzZhQjlFMERjMzEwQzIzMWM5QWU5RjEifQ",
+    "payload": "eyJkb21haW4iOiJmYXItYmlyZC52ZXJjZWwuYXBwIn0",
+    "signature": "CS9Nxn2s/k7iwcuQLY2gjwnncJklLogSrzLRuKxJXcEQizRhNjSqhNGmV18PHXvqUCnuOZGR+svgKuElrnPkCRs="
+  },
   "frame": {
     "version": "1",
     "name": "FarBird",
@@ -13,12 +18,5 @@
     "ogTitle": "FarBird",
     "ogDescription": "Play FarBird — the first flying Farcaster Mini App game!",
     "ogImageUrl": "https://farbird.vercel.app/splash.png"
-  }
-}
-{
-  "accountAssociation": {
-    "header": "eyJmaWQiOjI1MDQzNSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDNkYzQ0MGQxMDJlQWNBNTgwMzZhQjlFMERjMzEwQzIzMWM5QWU5RjEifQ",
-    "payload": "eyJkb21haW4iOiJmYXItYmlyZC52ZXJjZWwuYXBwIn0",
-    "signature": "CS9Nxn2s/k7iwcuQLY2gjwnncJklLogSrzLRuKxJXcEQizRhNjSqhNGmV18PHXvqUCnuOZGR+svgKuElrnPkCRs="
   }
 }
