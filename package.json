@@ -1,0 +1,16 @@
+{
+  "name": "farbird-miniapp",
+  "version": "1.0.0",
+  "description": "FarBird - Flappy Bird game for Farcaster Mini Apps",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve .",
+    "preview": "npx serve ."
+  },
+  "dependencies": {
+    "@farcaster/miniapp-sdk": "^0.0.61"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}

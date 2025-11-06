@@ -14,5 +14,11 @@
     "splashImageUrl": "https://far-bird.vercel.app/splash.png",
     "splashBackgroundColor": "#eeccff",
     "webhookUrl": "https://far-bird.vercel.app/api/webhook"
+  },
+  "miniapp": {
+    "iconUrl": "https://far-bird.vercel.app/splash.png",
+    "imageUrl": "https://far-bird.vercel.app/splash.png",
+    "splashImageUrl": "https://far-bird.vercel.app/splash.png"
   }
+
 }
