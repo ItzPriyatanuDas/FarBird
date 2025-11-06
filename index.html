@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FarBird - Farcaster Mini App</title>
+
+  <!-- ✅ Correct Mini App SDK import -->
   <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk@latest/dist/index.umd.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -103,33 +106,34 @@
 
     let bird, pipes, frame, gameOver, score, personalBest = 0;
     let farcasterUser = null;
-    const sdk = window.FarcasterMiniApp;
+    let sdk = null;
 
-    // ✅ Call ready() immediately on load
-    (async function init() {
+    // ✅ Proper Mini App initialization sequence
+    window.addEventListener("load", async () => {
       try {
-        await sdk.actions.ready(); // 👈 signal Warpcast we're ready
-        const context = await sdk.context;
+        sdk = window.miniapp;                 // 👈 Correct SDK handle
+        await sdk.actions.ready();            // ✅ Hides Warpcast splash screen
+        const context = await sdk.context;    // get user info
         farcasterUser = context.user;
+
         document.getElementById("userName").textContent =
           `@${farcasterUser.username} (FID: ${farcasterUser.fid})`;
 
-        // Load best score from Farcaster storage
         const stored = await sdk.storage.get(`farbird_best_${farcasterUser.fid}`);
         if (stored?.value) {
           personalBest = parseInt(stored.value);
           document.getElementById("bestScore").textContent = personalBest;
         }
-        resetGame();
       } catch (err) {
-        console.warn("Farcaster not available:", err);
+        console.warn("Mini App not running in Warpcast:", err);
         document.getElementById("userName").textContent = "Playing as Guest";
-        resetGame();
+      } finally {
+        resetGame(); // always start game after init
       }
-    })();
+    });
 
     async function savePersonalBest(score) {
-      if (!farcasterUser) return;
+      if (!farcasterUser || !sdk) return;
       if (score > personalBest) {
         personalBest = score;
         document.getElementById("bestScore").textContent = score;
@@ -138,7 +142,7 @@
     }
 
     async function shareScore() {
-      if (!farcasterUser) {
+      if (!farcasterUser || !sdk) {
         alert("Connect to Farcaster to share!");
         return;
       }
