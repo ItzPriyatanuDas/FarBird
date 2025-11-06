@@ -10,7 +10,7 @@
     "iconUrl": "https://YOUR_DOMAIN/path/to/icon.png",
     "splashImageUrl": "https://YOUR_DOMAIN/path/to/splash.png",
     "splashBackgroundColor": "#764ba2",
-    "homeUrl": "https://YOUR_DOMAIN/",
+    "homeUrl": "far-bird.vercel.app",
     "subtitle": "Fly and avoid the pipes!",
     "description": "FarBird — a fun flappy-bird style game inside Farcaster Mini Apps",
     "screenshotUrls": [
