@@ -81,33 +81,9 @@
       transition: transform 0.2s;
     }
     .btn:active { transform: scale(0.95); }
-
-    /* Blocker screen */
-    #blockedScreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #764ba2;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      flex-direction: column;
-      font-size: 1.2em;
-      z-index: 9999;
-      padding: 20px;
-    }
   </style>
 </head>
 <body>
-  <div id="blockedScreen" style="display: none;">
-    <h2>🚫 FarBird is only playable in Farcaster Mini Apps</h2>
-    <p>Open this game from your Farcaster app to play.</p>
-  </div>
-
   <div class="header">
     <h1>🐦 FarBird</h1>
     <p>Touch the Screen to Fly</p>
@@ -129,25 +105,11 @@
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
 
     async function bootstrap() {
-      try {
-        await sdk.actions.ready();
-
-        // Check if inside Farcaster
-        const session = await sdk.context.getCurrentUser();
-        if (!session || !session.fid) {
-          document.getElementById("blockedScreen").style.display = "flex";
-          return;
-        }
-
-        // Inside Farcaster ✅
-        initGame();
-      } catch (err) {
-        console.warn("Not inside Farcaster or SDK failed", err);
-        document.getElementById("blockedScreen").style.display = "flex";
-      }
+      await sdk.actions.ready();
+      initGame();
     }
 
-    function initGame() {
+    function initGame(){
       const WIDTH = 400, HEIGHT = 600;
       const GRAVITY = 0.25, LIFT = -5;
       const PIPE_WIDTH = 60, PIPE_GAP = 150;
@@ -203,14 +165,16 @@
         return false;
       }
 
+      // Smooth difficulty ramp: speed increases gradually with score
       function getPipeSpeed() {
-        const extraSpeed = Math.min(score * 0.05, 4);
+        const extraSpeed = Math.min(score * 0.05, 4); // max +4 speed cap
         return BASE_PIPE_SPEED + extraSpeed;
       }
 
       function update(delta) {
         if (gameOver) return;
-        const dt = delta / 16.67;
+
+        const dt = delta / 16.67; // normalize to 60fps base
 
         bird.vel += GRAVITY * dt;
         bird.y += bird.vel * dt;
@@ -279,6 +243,26 @@
         ctx.lineTo(x + w*0.9, y + h*0.25);
         ctx.closePath();
         ctx.fill();
+
+        ctx.fillStyle = "#FFA500";
+        ctx.beginPath();
+        ctx.ellipse(x + w*0.3, y + h*0.5 + wingFlap, w*0.3, h*0.4, -0.3, 0, Math.PI*2);
+        ctx.fill();
+
+        if (wingFlap < 0) {
+          ctx.fillStyle = "#FF8C00";
+          ctx.beginPath();
+          ctx.ellipse(x + w*0.6, y + h*0.5 - wingFlap, w*0.25, h*0.35, 0.3, 0, Math.PI*2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = "#FF8C00";
+        ctx.beginPath();
+        ctx.moveTo(x + w*0.1, y + h*0.5);
+        ctx.lineTo(x - w*0.1, y + h*0.3);
+        ctx.lineTo(x, y + h*0.6);
+        ctx.closePath();
+        ctx.fill();
       }
 
       function draw() {
@@ -294,6 +278,10 @@
         pipes.forEach(pipe => {
           ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.y);
           ctx.fillRect(pipe.x, pipe.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - pipe.y - PIPE_GAP);
+          ctx.strokeStyle = "#228B22";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(pipe.x, 0, PIPE_WIDTH, pipe.y);
+          ctx.strokeRect(pipe.x, pipe.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - pipe.y - PIPE_GAP);
         });
 
         ctx.fillStyle = "white";
