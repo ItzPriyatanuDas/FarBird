@@ -7,7 +7,7 @@
   "miniapp": {
     "version": "1",
     "name": "FarBird",
-    "iconUrl": "https://YOUR_DOMAIN/path/to/icon.png",
+    "iconUrl": "https://far-bird.vercel.app/assets/icon.png",
     "splashImageUrl": "https://YOUR_DOMAIN/path/to/splash.png",
     "splashBackgroundColor": "#764ba2",
     "homeUrl": "https://far-bird.vercel.app",
