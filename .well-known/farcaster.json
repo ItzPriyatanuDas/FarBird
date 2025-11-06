@@ -14,9 +14,9 @@
     "subtitle": "Fly and avoid the pipes!",
     "description": "FarBird — a fun flappy-bird style game inside Farcaster Mini Apps",
     "screenshotUrls": [
-      "https://YOUR_DOMAIN/path/to/screenshot1.png",
-      "https://YOUR_DOMAIN/path/to/screenshot2.png",
-      "https://YOUR_DOMAIN/path/to/screenshot3.png"
+      "https://far-bird.vercel.app/assets/screenshot1.png",
+      "https://far-bird.vercel.app/assets/screenshot2.png",
+      "https://far-bird.vercel.app/assets/screenshot3.png"
     ],
     "primaryCategory": "games",
     "tags": ["game", "flappy", "arcade"],
