@@ -21,7 +21,7 @@
     "primaryCategory": "games",
     "tags": ["game", "flappy", "arcade"],
     "buttonTitle": "Play FarBird",
-    "ogTitle": "FarBird – Flappy Bird on Farcaster",
+    "ogTitle": "Flappy Bird on Farcaster",
     "ogDescription": "Play the classic flying challenge reimagined for Farcaster. How far can your FarBird go?",
     "requiredChains": [],
     "requiredCapabilities": []
