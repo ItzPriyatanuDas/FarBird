@@ -11,7 +11,7 @@
     "splashImageUrl": "https://YOUR_DOMAIN/path/to/splash.png",
     "splashBackgroundColor": "#764ba2",
     "homeUrl": "https://far-bird.vercel.app",
-    "subtitle": "Fly and avoid the pipes!",
+    "subtitle": "Flappy Bird on Farcaster",
     "description": "FarBird — a fun flappy-bird style game inside Farcaster Mini Apps",
     "screenshotUrls": [
       "https://far-bird.vercel.app/assets/screenshot1.png",
@@ -20,6 +20,9 @@
     ],
     "primaryCategory": "games",
     "tags": ["game", "flappy", "arcade"],
+    "buttonTitle": "Play FarBird",
+    "ogTitle": "FarBird – Flappy Bird on Farcaster",
+    "ogDescription": "Play the classic flying challenge reimagined for Farcaster. How far can your FarBird go?",
     "requiredChains": [],
     "requiredCapabilities": []
   }
