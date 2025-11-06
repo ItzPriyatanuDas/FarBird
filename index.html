@@ -114,14 +114,13 @@
       const GRAVITY = 0.25, LIFT = -5;
       const PIPE_WIDTH = 60, PIPE_GAP = 150;
       const BASE_PIPE_SPEED = 2.5;
-      const EASY_SCORE_THRESHOLD = 15;
-      const EASY_SPEED_FACTOR = 0.5;
       const PIPE_SPAWN_FREQUENCY = 150;
 
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
 
       let bird, pipes, frame, gameOver, score, personalBest = 0;
+      let lastTime = 0;
 
       function resetGame() {
         bird = { x: 70, y: HEIGHT / 2, w: 40, h: 32, vel: 0 };
@@ -129,8 +128,9 @@
         frame = 0;
         gameOver = false;
         score = 0;
+        lastTime = 0;
         document.getElementById('gameOverModal').classList.remove('show');
-        loop();
+        requestAnimationFrame(loop);
       }
 
       function restartGame() {
@@ -165,23 +165,25 @@
         return false;
       }
 
+      // Smooth difficulty ramp: speed increases gradually with score
       function getPipeSpeed() {
-        return score < EASY_SCORE_THRESHOLD
-          ? BASE_PIPE_SPEED * EASY_SPEED_FACTOR
-          : BASE_PIPE_SPEED + 0.5;
+        const extraSpeed = Math.min(score * 0.05, 4); // max +4 speed cap
+        return BASE_PIPE_SPEED + extraSpeed;
       }
 
-      function update() {
+      function update(delta) {
         if (gameOver) return;
 
-        bird.vel += GRAVITY;
-        bird.y += bird.vel;
+        const dt = delta / 16.67; // normalize to 60fps base
+
+        bird.vel += GRAVITY * dt;
+        bird.y += bird.vel * dt;
         if (bird.y < 0) bird.y = 0;
 
         const currentPipeSpeed = getPipeSpeed();
 
         for (let i = pipes.length - 1; i >= 0; i--) {
-          pipes[i].x -= currentPipeSpeed;
+          pipes[i].x -= currentPipeSpeed * dt;
 
           if (!pipes[i].passed && pipes[i].x + PIPE_WIDTH < bird.x) {
             score++;
@@ -292,8 +294,12 @@
         ctx.fillText(scoreText, WIDTH / 2 - textWidth / 2, 50);
       }
 
-      function loop() {
-        update();
+      function loop(timestamp) {
+        if (!lastTime) lastTime = timestamp;
+        const delta = timestamp - lastTime;
+        lastTime = timestamp;
+
+        update(delta);
         draw();
         if (!gameOver) requestAnimationFrame(loop);
       }
