@@ -1,24 +1,26 @@
 {
   "accountAssociation": {
-    "header": "eyJmaWQiOjI1MDQzNSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDNkYzQ0MGQxMDJlQWNBNTgwMzZhQjlFMERjMzEwQzIzMWM5QWU5RjEifQ",
-    "payload": "eyJkb21haW4iOiJmYXItYmlyZC52ZXJjZWwuYXBwIn0",
-    "signature": "CS9Nxn2s/k7iwcuQLY2gjwnncJklLogSrzLRuKxJXcEQizRhNjSqhNGmV18PHXvqUCnuOZGR+svgKuElrnPkCRs="
-  },
-  "frame": {
-    "version": "1",
-    "name": "Example Frame",
-    "iconUrl": "https://far-bird.vercel.app/icon.png",
-    "homeUrl": "https://far-bird.vercel.app",
-    "imageUrl": "https://far-bird.vercel.app/image.png",
-    "buttonTitle": "Check this out",
-    "splashImageUrl": "https://far-bird.vercel.app/splash.png",
-    "splashBackgroundColor": "#eeccff",
-    "webhookUrl": "https://far-bird.vercel.app/api/webhook"
+    "header": "PUT_YOUR_SIGNED_HEADER_HERE",
+    "payload": "PUT_YOUR_SIGNED_PAYLOAD_HERE",
+    "signature": "PUT_YOUR_SIGNATURE_HERE"
   },
   "miniapp": {
-    "iconUrl": "https://far-bird.vercel.app/splash.png",
-    "imageUrl": "https://far-bird.vercel.app/splash.png",
-    "splashImageUrl": "https://far-bird.vercel.app/splash.png"
+    "version": "1",
+    "name": "FarBird",
+    "iconUrl": "https://YOUR_DOMAIN/path/to/icon.png",
+    "splashImageUrl": "https://YOUR_DOMAIN/path/to/splash.png",
+    "splashBackgroundColor": "#764ba2",
+    "homeUrl": "https://YOUR_DOMAIN/",
+    "subtitle": "Fly and avoid the pipes!",
+    "description": "FarBird — a fun flappy-bird style game inside Farcaster Mini Apps",
+    "screenshotUrls": [
+      "https://YOUR_DOMAIN/path/to/screenshot1.png",
+      "https://YOUR_DOMAIN/path/to/screenshot2.png",
+      "https://YOUR_DOMAIN/path/to/screenshot3.png"
+    ],
+    "primaryCategory": "games",
+    "tags": ["game", "flappy", "arcade"],
+    "requiredChains": [],
+    "requiredCapabilities": []
   }
-
 }
