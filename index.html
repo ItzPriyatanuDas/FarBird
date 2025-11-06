@@ -1,30 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FarBird - Flappy Bird for Farcaster</title>
+  
+  <!-- Mini App Embed Meta Tags -->
+  <meta name="fc:miniapp" content='{"version":"1","imageUrl":"https://yourdomain.com/og-image.png","button":{"title":"🐦 Play Now","action":{"type":"launch_miniapp","name":"FarBird","url":"https://yourdomain.com","splashImageUrl":"https://yourdomain.com/splash.png","splashBackgroundColor":"#667eea"}}}' />
 
-  <!-- ✅ Mini App Embed Meta -->
-  <meta
-    name="fc:miniapp"
-    content='{
-      "version":"1",
-      "imageUrl":"https://yourdomain.com/og-image.png",
-      "button":{
-        "title":"🐦 Play Now",
-        "action":{
-          "type":"launch_miniapp",
-          "name":"FarBird",
-          "url":"https://yourdomain.com",
-          "splashImageUrl":"https://yourdomain.com/splash.png",
-          "splashBackgroundColor":"#667eea"
-        }
-      }
-    }'
-  />
-
-  <!-- ✅ Open Graph for social sharing -->
+  <!-- Open Graph for social sharing -->
   <meta property="og:title" content="FarBird - Flappy Bird on Farcaster" />
   <meta property="og:description" content="Play the classic bird game on Farcaster!" />
   <meta property="og:image" content="https://yourdomain.com/og-image.png" />
@@ -52,6 +36,7 @@
       text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
       margin-bottom: 5px;
     }
+
     .header p { font-size: 1em; opacity: 0.9; }
 
     .user-info {
@@ -137,7 +122,10 @@
 
     .loading {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       align-items: center;
@@ -151,7 +139,7 @@
 <body>
   <div id="loading" class="loading">Loading FarBird...</div>
 
-  <div id="app" style="display:none;">
+  <div id="app" style="display: none;">
     <div class="header">
       <h1>🐦 FarBird</h1>
       <p>Touch the Screen to Fly</p>
@@ -179,70 +167,66 @@
     </div>
   </div>
 
-  <!-- ✅ Mini App SDK -->
-  <script type="module">
-    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk@0.0.61';
-    window.miniAppSDK = sdk;
-
-    async function initMiniApp() {
+  <!-- ✅ Use the UMD version of the SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk@latest/dist/index.umd.js"></script>
+  
+  <script>
+    window.addEventListener("load", async () => {
       try {
-        const context = await sdk.context;
+        const sdk = window.miniapp;
 
-        // Display user info if available
-        if (context.user?.username) {
-          document.getElementById('userName').textContent = `Playing as @${context.user.username}`;
-        } else if (context.user?.fid) {
-          document.getElementById('userName').textContent = `Playing as FID: ${context.user.fid}`;
+        // Wait for SDK to initialize
+        if (sdk?.actions?.ready) {
+          await sdk.actions.ready(); // ✅ tells Warpcast we’re ready
+        }
+
+        const context = await sdk.context.catch(() => ({}));
+
+        // Update user info if available
+        if (context?.user?.username) {
+          document.getElementById("userName").textContent = `Playing as @${context.user.username}`;
+        } else if (context?.user?.fid) {
+          document.getElementById("userName").textContent = `Playing as FID: ${context.user.fid}`;
         }
 
         // Apply safe area padding
-        if (context.client?.safeAreaInsets) {
+        if (context?.client?.safeAreaInsets) {
           const insets = context.client.safeAreaInsets;
           document.body.style.paddingTop = `${insets.top}px`;
           document.body.style.paddingBottom = `${insets.bottom}px`;
         }
 
-        // Handle cast context (optional)
-        if (context.location?.type === 'cast_embed') {
-          console.log('Opened from cast:', context.location.cast.hash);
-        }
+        // Show app
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("app").style.display = "flex";
 
-        // Hide splash, show app
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('app').style.display = 'flex';
-
-        // ✅ Tell Warpcast we're ready
-        if (sdk?.actions?.ready) await sdk.actions.ready();
-
-        // Start the game
+        // Start game
         window.initGame();
 
       } catch (err) {
-        console.error('Mini App init failed:', err);
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('app').style.display = 'flex';
+        console.error("Mini App init failed:", err);
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("app").style.display = "flex";
         window.initGame();
       }
-    }
+    });
 
-    // ✅ Share Score to Farcaster
+    // Share score to Warpcast
     window.shareScore = async function() {
+      const sdk = window.miniapp;
+      const score = document.getElementById("finalScore").textContent;
       try {
-        const score = document.getElementById('finalScore').textContent;
         await sdk.actions.composeCast({
-          text: `I just scored ${score} in 🐦 FarBird! Can you beat my score?`,
-          embeds: [window.location.href],
+          text: `I just scored ${score} points in FarBird! 🐦 Can you beat my score?`,
+          embeds: [window.location.href]
         });
       } catch (err) {
-        console.error('Share failed:', err);
+        console.error("Share failed:", err);
       }
     };
-
-    // Start
-    initMiniApp();
   </script>
 
-  <!-- ✅ Game Logic -->
+  <!-- 🕹 Game logic -->
   <script>
     const WIDTH = 400, HEIGHT = 600;
     const GRAVITY = 0.25, LIFT = -5;
@@ -256,13 +240,13 @@
     const ctx = canvas.getContext("2d");
 
     let bird, pipes, frame, gameOver, score, personalBest = 0;
-    const STORAGE_KEY = 'farbird-best-score';
+    const STORAGE_KEY = "farbird-best-score";
 
     window.initGame = function() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         personalBest = parseInt(saved, 10);
-        document.getElementById('bestScore').textContent = personalBest;
+        document.getElementById("bestScore").textContent = personalBest;
       }
       resetGame();
     };
@@ -273,7 +257,7 @@
       frame = 0;
       gameOver = false;
       score = 0;
-      document.getElementById('gameOverModal').classList.remove('show');
+      document.getElementById("gameOverModal").classList.remove("show");
       loop();
     }
 
@@ -282,7 +266,9 @@
     function flap() {
       if (!gameOver) {
         bird.vel = LIFT;
-        window.miniAppSDK?.haptics?.impactOccurred?.('light').catch(()=>{});
+        if (window.miniapp?.haptics?.impactOccurred) {
+          window.miniapp.haptics.impactOccurred("light").catch(() => {});
+        }
       }
     }
 
@@ -298,15 +284,18 @@
     }
 
     function checkCollision(pipe) {
-      return (
-        (bird.x < pipe.x + PIPE_WIDTH && bird.x + bird.w > pipe.x &&
-        (bird.y < pipe.y || bird.y + bird.h > pipe.y + PIPE_GAP)) ||
-        bird.y + bird.h >= HEIGHT - 60
-      );
+      if (
+        bird.x < pipe.x + PIPE_WIDTH &&
+        bird.x + bird.w > pipe.x &&
+        (bird.y < pipe.y || bird.y + bird.h > pipe.y + PIPE_GAP)
+      ) return true;
+      return bird.y + bird.h >= HEIGHT - 60;
     }
 
     function getPipeSpeed() {
-      return score < EASY_SCORE_THRESHOLD ? BASE_PIPE_SPEED * EASY_SPEED_FACTOR : BASE_PIPE_SPEED + 0.5;
+      return score < EASY_SCORE_THRESHOLD
+        ? BASE_PIPE_SPEED * EASY_SPEED_FACTOR
+        : BASE_PIPE_SPEED + 0.5;
     }
 
     function update() {
@@ -316,17 +305,21 @@
       if (bird.y < 0) bird.y = 0;
 
       const speed = getPipeSpeed();
+
       for (let i = pipes.length - 1; i >= 0; i--) {
         pipes[i].x -= speed;
-
         if (!pipes[i].passed && pipes[i].x + PIPE_WIDTH < bird.x) {
           score++;
           pipes[i].passed = true;
-          window.miniAppSDK?.haptics?.notificationOccurred?.('success').catch(()=>{});
+          if (window.miniapp?.haptics?.notificationOccurred) {
+            window.miniapp.haptics.notificationOccurred("success").catch(() => {});
+          }
         }
-
         if (pipes[i].x + PIPE_WIDTH < 0) pipes.splice(i, 1);
-        if (checkCollision(pipes[i])) { gameOver = true; handleGameOver(); }
+        if (checkCollision(pipes[i])) {
+          gameOver = true;
+          handleGameOver();
+        }
       }
 
       if (frame % PIPE_SPAWN_FREQUENCY === 0) addPipe();
@@ -334,78 +327,46 @@
     }
 
     function handleGameOver() {
-      window.miniAppSDK?.haptics?.notificationOccurred?.('error').catch(()=>{});
-      document.getElementById('finalScore').textContent = score;
+      if (window.miniapp?.haptics?.notificationOccurred) {
+        window.miniapp.haptics.notificationOccurred("error").catch(() => {});
+      }
 
+      document.getElementById("finalScore").textContent = score;
       if (score > personalBest) {
         personalBest = score;
         localStorage.setItem(STORAGE_KEY, personalBest.toString());
-        document.getElementById('newBest').style.display = 'block';
+        document.getElementById("newBest").style.display = "block";
       } else {
-        document.getElementById('newBest').style.display = 'none';
+        document.getElementById("newBest").style.display = "none";
       }
-
-      document.getElementById('personalBest').textContent = personalBest;
-      document.getElementById('bestScore').textContent = personalBest;
-      document.getElementById('gameOverModal').classList.add('show');
+      document.getElementById("personalBest").textContent = personalBest;
+      document.getElementById("bestScore").textContent = personalBest;
+      document.getElementById("gameOverModal").classList.add("show");
     }
 
     function drawBird(x, y, w, h, frame) {
-      const wingFlap = Math.sin(frame * 0.2) * 5;
+      const wing = Math.sin(frame * 0.2) * 5;
       ctx.fillStyle = "#FFD700";
       ctx.beginPath(); ctx.ellipse(x + w/2, y + h/2, w/2, h/2, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#FFA500";
-      ctx.beginPath(); ctx.arc(x + w*0.7, y + h*0.3, w*0.35, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = "white";
-      ctx.beginPath(); ctx.arc(x + w*0.75, y + h*0.25, w*0.15, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = "black";
-      ctx.beginPath(); ctx.arc(x + w*0.8, y + h*0.25, w*0.08, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#FF6347";
-      ctx.beginPath();
-      ctx.moveTo(x + w*0.9, y + h*0.35);
-      ctx.lineTo(x + w*1.1, y + h*0.3);
-      ctx.lineTo(x + w*0.9, y + h*0.25);
-      ctx.closePath(); ctx.fill();
-      ctx.fillStyle = "#FFA500";
-      ctx.beginPath();
-      ctx.ellipse(x + w*0.3, y + h*0.5 + wingFlap, w*0.3, h*0.4, -0.3, 0, Math.PI*2); ctx.fill();
-      if (wingFlap < 0) {
-        ctx.fillStyle = "#FF8C00";
-        ctx.beginPath();
-        ctx.ellipse(x + w*0.6, y + h*0.5 - wingFlap, w*0.25, h*0.35, 0.3, 0, Math.PI*2);
-        ctx.fill();
-      }
-      ctx.fillStyle = "#FF8C00";
-      ctx.beginPath();
-      ctx.moveTo(x + w*0.1, y + h*0.5);
-      ctx.lineTo(x - w*0.1, y + h*0.3);
-      ctx.lineTo(x, y + h*0.6);
-      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#FFA500"; ctx.beginPath(); ctx.arc(x + w*0.7, y + h*0.3, w*0.35, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(x + w*0.75, y + h*0.25, w*0.15, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "black"; ctx.beginPath(); ctx.arc(x + w*0.8, y + h*0.25, w*0.08, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#FF6347"; ctx.beginPath(); ctx.moveTo(x + w*0.9, y + h*0.35); ctx.lineTo(x + w*1.1, y + h*0.3); ctx.lineTo(x + w*0.9, y + h*0.25); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#FFA500"; ctx.beginPath(); ctx.ellipse(x + w*0.3, y + h*0.5 + wing, w*0.3, h*0.4, -0.3, 0, Math.PI*2); ctx.fill();
     }
 
     function draw() {
-      ctx.fillStyle = "#87CEEB";
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-      ctx.fillStyle = "#228B22";
-      ctx.fillRect(0, HEIGHT - 60, WIDTH, 60);
+      ctx.fillStyle = "#87CEEB"; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      ctx.fillStyle = "#228B22"; ctx.fillRect(0, HEIGHT - 60, WIDTH, 60);
       drawBird(bird.x, bird.y, bird.w, bird.h, frame);
       ctx.fillStyle = "#2ECC40";
       pipes.forEach(p => {
         ctx.fillRect(p.x, 0, PIPE_WIDTH, p.y);
         ctx.fillRect(p.x, p.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - p.y - PIPE_GAP);
-        ctx.strokeStyle = "#228B22";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(p.x, 0, PIPE_WIDTH, p.y);
-        ctx.strokeRect(p.x, p.y + PIPE_GAP, PIPE_WIDTH, HEIGHT - p.y - PIPE_GAP);
       });
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 3;
-      ctx.font = "bold 40px Arial";
-      const scoreText = score.toString();
-      const textWidth = ctx.measureText(scoreText).width;
-      ctx.strokeText(scoreText, WIDTH/2 - textWidth/2, 50);
-      ctx.fillText(scoreText, WIDTH/2 - textWidth/2, 50);
+      ctx.strokeStyle = "black"; ctx.lineWidth = 3; ctx.font = "bold 40px Arial";
+      const text = score.toString(); const w = ctx.measureText(text).width;
+      ctx.strokeText(text, WIDTH/2 - w/2, 50); ctx.fillText(text, WIDTH/2 - w/2, 50);
     }
 
     function loop() {
