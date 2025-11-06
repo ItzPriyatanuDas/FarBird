@@ -114,13 +114,14 @@
       const GRAVITY = 0.25, LIFT = -5;
       const PIPE_WIDTH = 60, PIPE_GAP = 150;
       const BASE_PIPE_SPEED = 2.5;
-      const PIPE_SPAWN_FREQUENCY = 150;
 
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
 
       let bird, pipes, frame, gameOver, score, personalBest = 0;
       let lastTime = 0;
+      let pipeTimer = 0;
+      const PIPE_INTERVAL = 1500; // ms between pipes
 
       function resetGame() {
         bird = { x: 70, y: HEIGHT / 2, w: 40, h: 32, vel: 0 };
@@ -129,6 +130,7 @@
         gameOver = false;
         score = 0;
         lastTime = 0;
+        pipeTimer = 0;
         document.getElementById('gameOverModal').classList.remove('show');
         requestAnimationFrame(loop);
       }
@@ -165,16 +167,15 @@
         return false;
       }
 
-      // Smooth difficulty ramp: speed increases gradually with score
       function getPipeSpeed() {
-        const extraSpeed = Math.min(score * 0.05, 4); // max +4 speed cap
+        const extraSpeed = Math.min(score * 0.05, 4);
         return BASE_PIPE_SPEED + extraSpeed;
       }
 
       function update(delta) {
         if (gameOver) return;
 
-        const dt = delta / 16.67; // normalize to 60fps base
+        const dt = delta / 16.67; // normalize to 60fps
 
         bird.vel += GRAVITY * dt;
         bird.y += bird.vel * dt;
@@ -197,7 +198,12 @@
           }
         }
 
-        if (frame % PIPE_SPAWN_FREQUENCY === 0) addPipe();
+        pipeTimer += delta;
+        if (pipeTimer >= PIPE_INTERVAL) {
+          addPipe();
+          pipeTimer = 0;
+        }
+
         frame++;
       }
 
