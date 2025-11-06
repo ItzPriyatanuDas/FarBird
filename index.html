@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FarBird</title>
 
-  <!-- Meta tag for embed (optional but good) -->
-  <meta name="fc:frame" content='{"version":"1","button":{"title":"🐦 Play FarBird","action":{"type":"launch_miniapp","name":"FarBird","url":"https://YOUR_DOMAIN/","splashImageUrl":"https://YOUR_DOMAIN/splash.png","splashBackgroundColor":"#764ba2"}}}'>
+  <!-- Mini App embed meta tag -->
+  <meta name="fc:frame" content='{"version":"1","button":{"title":"🐦 Play FarBird","action":{"type":"launch_frame","name":"FarBird","url":"https://YOUR_DOMAIN/","splashImageUrl":"https://YOUR_DOMAIN/splash.png","splashBackgroundColor":"#764ba2"}}}'>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,15 +30,6 @@
       margin-bottom: 5px;
     }
     .header p { font-size: 1em; opacity: 0.9; }
-    .user-info {
-      background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(10px);
-      padding: 8px 15px;
-      border-radius: 20px;
-      color: white;
-      font-size: 0.9em;
-      margin-bottom: 10px;
-    }
     .game-container {
       position: relative;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
@@ -49,17 +40,6 @@
       display: block;
       background: #87CEEB;
       touch-action: manipulation;
-    }
-    .stats-overlay {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 0.9em;
-      text-align: right;
     }
     .game-over-modal {
       position: absolute;
@@ -90,7 +70,7 @@
       margin: 5px 0;
     }
     .btn {
-      background: linear‐gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
       padding: 12px 25px;
@@ -101,56 +81,31 @@
       transition: transform 0.2s;
     }
     .btn:active { transform: scale(0.95); }
-    .btn-secondary {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    }
   </style>
 </head>
 <body>
   <div class="header">
-    # 🐦 FarBird
+    <h1>🐦 FarBird</h1>
     <p>Touch the Screen to Fly</p>
-  </div>
-
-  <div class="user-info" id="userInfo">
-    <span id="userName">Playing as Guest</span>
   </div>
 
   <div class="game-container">
     <canvas id="gameCanvas" width="400" height="600"></canvas>
 
-    <div class="stats-overlay">
-      <div>Best: <span id="bestScore">0</span></div>
-    </div>
-
     <div class="game-over-modal" id="gameOverModal">
-      ## Game Over!
+      <h2>Game Over!</h2>
       <div class="score-display">Score: <span id="finalScore">0</span></div>
       <div class="best-score" id="newBest" style="display:none;">🎉 New Best!</div>
       <div class="best-score">Your Best: <span id="personalBest">0</span></div>
-      <button class="btn" onclick="restartGame()">Play Again</button>
+      <button class="btn" id="btnPlayAgain">Play Again</button>
     </div>
   </div>
 
-  <!-- SDK integration & game logic -->
   <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
 
     async function bootstrap() {
-      // Wait for SDK to initialize
       await sdk.actions.ready();
-
-      // Fetch user info (optionally)
-      try {
-        const user = await sdk.user();
-        if (user && user.displayName) {
-          document.getElementById('userName').textContent = `Playing as ${user.displayName}`;
-        }
-      } catch (err) {
-        console.warn('Could not fetch user:', err);
-      }
-
-      // Then start game logic after SDK is ready
       initGame();
     }
 
@@ -181,6 +136,8 @@
       function restartGame() {
         resetGame();
       }
+
+      document.getElementById('btnPlayAgain').addEventListener('click', restartGame);
 
       function flap() {
         if (!gameOver) bird.vel = LIFT;
@@ -251,7 +208,6 @@
           document.getElementById('newBest').style.display = 'none';
         }
         document.getElementById('personalBest').textContent = personalBest;
-        document.getElementById('bestScore').textContent = personalBest;
         document.getElementById('gameOverModal').classList.add('show');
       }
 
@@ -312,7 +268,7 @@
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
         ctx.fillStyle = "#228B22";
-        ctx.fillRect(0, HEIGHT-60, WIDTH, 60);
+        ctx.fillRect(0, HEIGHT - 60, WIDTH, 60);
 
         drawBird(bird.x, bird.y, bird.w, bird.h, frame);
 
@@ -332,8 +288,8 @@
         ctx.font = "bold 40px Arial";
         const scoreText = score.toString();
         const textWidth = ctx.measureText(scoreText).width;
-        ctx.strokeText(scoreText, WIDTH/2 - textWidth/2, 50);
-        ctx.fillText(scoreText, WIDTH/2 - textWidth/2, 50);
+        ctx.strokeText(scoreText, WIDTH / 2 - textWidth / 2, 50);
+        ctx.fillText(scoreText, WIDTH / 2 - textWidth / 2, 50);
       }
 
       function loop() {
@@ -342,11 +298,9 @@
         if (!gameOver) requestAnimationFrame(loop);
       }
 
-      // start game
       resetGame();
     }
 
-    // initialize after page load
     window.addEventListener('load', bootstrap);
   </script>
 </body>
